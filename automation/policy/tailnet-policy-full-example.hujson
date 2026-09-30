@@ -1,0 +1,35 @@
+// A complete, standalone Tailscale policy for a small personal tailnet with a
+// self-approving exit node. This is what the Terraform module applies when you
+// set manage_acl = true, and it REPLACES whatever policy you have today.
+//
+// If you already have rules you care about, don't use this file. Merge the
+// snippet (tailnet-policy-snippet.hujson) into your existing policy instead.
+//
+// Each block is explained in the snippet; the comments here are kept short.
+{
+  // Who may apply the tag. autogroup:admin = any tailnet admin.
+  "tagOwners": {
+    "tag:exit": ["autogroup:admin"],
+  },
+
+  // Tagged machines that offer to be an exit node are approved automatically.
+  "autoApprovers": {
+    "exitNode": ["tag:exit"],
+  },
+
+  // Tailscale's default: every device may reach every other device. Keep it
+  // unless you are deliberately locking your tailnet down.
+  "acls": [
+    {"action": "accept", "src": ["*"], "dst": ["*:*"]},
+  ],
+
+  // Tailscale SSH into the exit node, with a periodic browser re-check.
+  "ssh": [
+    {
+      "action": "check",
+      "src":    ["autogroup:member"],
+      "dst":    ["tag:exit"],
+      "users":  ["autogroup:nonroot", "root"],
+    },
+  ],
+}

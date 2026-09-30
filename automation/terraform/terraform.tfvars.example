@@ -1,0 +1,16 @@
+# Copy to terraform.tfvars (which is gitignored) and adjust. Secrets never go
+# here; they come from environment variables, see providers.tf.
+
+name   = "exit-nyc1"
+region = "nyc1"
+size   = "s-1vcpu-1gb"
+
+# Leave empty to attach every SSH key on the DigitalOcean account.
+ssh_key_ids = []
+
+# Keep this false unless you want Terraform to REPLACE your whole tailnet
+# policy with ../policy/tailnet-policy-full-example.hujson.
+manage_acl = false
+
+# Set true to have apply wait until the machine is visible on the tailnet.
+wait_for_device = false

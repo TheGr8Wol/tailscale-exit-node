@@ -1,0 +1,50 @@
+// Tailscale policy snippet for a self-approving exit node.
+//
+// This is NOT a complete policy file. It's the handful of keys you need to MERGE
+// into the policy you already have (admin console -> Access Controls). If one of
+// these keys already exists in your policy, add the entries to it rather than
+// replacing the whole key.
+//
+// Save this BEFORE you boot the server. Auto-approval only applies to machines
+// that register after the policy is in place; a machine that shows up first has
+// to be approved by hand.
+//
+// The file format is HuJSON: JSON that allows comments and trailing commas.
+{
+  // A tag is a label for a machine that isn't tied to a person. A server that
+  // runs unattended should be tagged, for two reasons: the rules below can
+  // target it, and tagged devices don't have their keys expire every 180 days.
+  // "tagOwners" says who may hand out the tag. autogroup:admin means any admin
+  // of the tailnet, which includes you.
+  "tagOwners": {
+    "tag:exit": ["autogroup:admin"],
+  },
+
+  // This is the part that saves you a trip to the admin console. Any device
+  // carrying tag:exit that offers to be an exit node is approved automatically,
+  // instead of waiting for someone to tick "Use as exit node" by hand.
+  "autoApprovers": {
+    "exitNode": ["tag:exit"],
+  },
+
+  // Network access. If your policy still has Tailscale's default allow-all rule
+  // (every device can reach every other device), you can skip this block. If
+  // you've tightened things up, add this rule so your devices can reach the
+  // exit node at all.
+  "acls": [
+    {"action": "accept", "src": ["autogroup:member"], "dst": ["tag:exit:*"]},
+  ],
+
+  // Tailscale SSH: log in to the server over the tailnet with a plain
+  // `ssh root@<hostname>` and no SSH keys to manage. "check" means Tailscale
+  // asks you to re-authenticate in a browser every so often (12 hours by
+  // default) before letting the session through. Use "accept" to skip that.
+  "ssh": [
+    {
+      "action": "check",
+      "src":    ["autogroup:member"],
+      "dst":    ["tag:exit"],
+      "users":  ["autogroup:nonroot", "root"],
+    },
+  ],
+}

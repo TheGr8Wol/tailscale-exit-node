@@ -1,0 +1,36 @@
+# Terraform / OpenTofu: state holds the auth key in cleartext, so it never
+# leaves the machine that ran apply.
+*.tfstate
+*.tfstate.*
+.terraform/
+.terraform.tfstate.lock.info
+*.tfplan
+crash.log
+crash.*.log
+override.tf
+override.tf.json
+*_override.tf
+*_override.tf.json
+.terraformrc
+terraform.rc
+*.tfvars
+*.tfvars.json
+!terraform.tfvars.example
+
+# Provisioning script: local record of droplets it created (no secrets), and
+# any rendered user-data (it embeds the auth key).
+.state/
+*.user-data.yaml
+user-data.yaml
+
+# Secrets, in case one is ever dropped here by mistake
+.env
+.env.*
+*.pem
+*.key
+
+# Editors and OS
+.DS_Store
+.idea/
+.vscode/
+*.swp
